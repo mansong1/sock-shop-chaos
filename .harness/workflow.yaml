@@ -27,24 +27,25 @@ pipeline:
                           os: Linux
                   execution:
                       steps:
-                          - step:
-                                type: Run
-                                name: Install-chaos-experiments
-                                identifier: Installchaosexperiments
-                                spec:
-                                    connectorRef: account.harnessImage
-                                    image: litmuschaos/k8s:latest
-                                    shell: Sh
-                                    command: kubectl apply -f https://hub.litmuschaos.io/api/chaos/master?file=charts/generic/experiments.yaml -n <+stage.variables.adminModeNamespace>; sleep 30
-                  serviceDependencies:
-                      - identifier: loadtest
-                        name: load-test
-                        type: Service
-                        spec:
-                            connectorRef: account.harnessImage
-                            image: litmuschaos/litmus-app-deployer:latest
-                            args:
-                                - '"-namespace=loadtest", "-app=loadtest"'
+                          - parallel:
+                                - step:
+                                      type: Run
+                                      name: Install-chaos-experiments
+                                      identifier: Installchaosexperiments
+                                      spec:
+                                          connectorRef: account.harnessImage
+                                          image: litmuschaos/k8s:latest
+                                          shell: Sh
+                                          command: kubectl apply -f https://hub.litmuschaos.io/api/chaos/master?file=charts/generic/experiments.yaml -n <+stage.variables.adminModeNamespace>; sleep 30
+                                - step:
+                                      type: Run
+                                      name: Load-test
+                                      identifier: Loadtest
+                                      spec:
+                                          connectorRef: account.harnessImage
+                                          image: litmuschaos/litmus-app-deployer:latest
+                                          shell: Sh
+                                          command: -namespace=loadtest -app=loadtest
               variables:
                   - name: adminModeNamespace
                     type: String
