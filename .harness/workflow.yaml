@@ -21,7 +21,7 @@ pipeline:
                       type: KubernetesDirect
                       spec:
                           connectorRef: account.ChaosCluster
-                          namespace: <+stage.variables.adminModeNamespace>
+                          namespace: harness-delegate-ng
                           automountServiceAccountToken: true
                           nodeSelector: {}
                           os: Linux
