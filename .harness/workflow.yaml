@@ -1,0 +1,42 @@
+pipeline:
+    name: workflow
+    identifier: workflow
+    projectIdentifier: Chaos
+    orgIdentifier: default
+    tags: {}
+    properties:
+        ci:
+            codebase:
+                connectorRef: account.Github
+                repoName: sock-shop-chaos
+                build: <+input>
+    stages:
+        - stage:
+              name: Chaos
+              identifier: Chaos
+              type: CI
+              spec:
+                  cloneCodebase: true
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          connectorRef: account.ChaosCluster
+                          namespace: <+stage.variables.adminModeNamespace>
+                          automountServiceAccountToken: true
+                          nodeSelector: {}
+                          os: Linux
+                  execution:
+                      steps:
+                          - step:
+                                type: Run
+                                name: Install-chaos-experiments
+                                identifier: Installchaosexperiments
+                                spec:
+                                    connectorRef: account.harnessImage
+                                    image: litmuschaos/k8s:latest
+                                    shell: Sh
+                                    command: kubectl apply -f https://hub.litmuschaos.io/api/chaos/master?file=charts/generic/experiments.yaml -n <+stage.variables.adminModeNamespace>; sleep 30
+              variables:
+                  - name: adminModeNamespace
+                    type: String
+                    value: litmus
