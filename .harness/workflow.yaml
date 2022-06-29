@@ -36,6 +36,15 @@ pipeline:
                                     image: litmuschaos/k8s:latest
                                     shell: Sh
                                     command: kubectl apply -f https://hub.litmuschaos.io/api/chaos/master?file=charts/generic/experiments.yaml -n <+stage.variables.adminModeNamespace>; sleep 30
+                  serviceDependencies:
+                      - identifier: loadtest
+                        name: load-test
+                        type: Service
+                        spec:
+                            connectorRef: account.harnessImage
+                            image: litmuschaos/litmus-app-deployer:latest
+                            args:
+                                - '"-namespace=loadtest", "-app=loadtest"'
               variables:
                   - name: adminModeNamespace
                     type: String
