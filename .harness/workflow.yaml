@@ -40,3 +40,6 @@ pipeline:
                   - name: adminModeNamespace
                     type: String
                     value: litmus
+                  - name: appNamespace
+                    type: String
+                    value: sock-shop
